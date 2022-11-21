@@ -23,6 +23,22 @@ class LR_r<bit aq, bit rl, bits<3> funct3, string opcodestr>
   let rs2 = 0;
 }
 
+let hasSideEffects = 0, mayLoad = 1, mayStore = 0 in
+class LDAQ_r<bits<3> funct3, string opcodestr>
+    : RVInstRAtomic<0b00010, 0b1, 0b0, funct3, OPC_CUSTOM_0,
+                    (outs GPR:$rd), (ins GPRMemZeroOffset:$rs1),
+                    opcodestr, "$rd, $rs1"> {
+  let rs2 = 0;
+}
+
+let hasSideEffects = 0, mayLoad = 0, mayStore = 1 in
+class STRL_rr<bits<3> funct3, string opcodestr>
+    : RVInstRAtomic<0b00010, 0b0, 0b1, funct3, OPC_CUSTOM_1,
+                    (outs), (ins GPRMemZeroOffset:$rs1, GPR:$rs2),
+                    opcodestr, "$rs2, $rs1"> {
+  let rd = 0;
+}
+
 multiclass LR_r_aq_rl<bits<3> funct3, string opcodestr> {
   def ""     : LR_r<0, 0, funct3, opcodestr>;
   def _AQ    : LR_r<1, 0, funct3, opcodestr # ".aq">;
@@ -57,6 +73,10 @@ let Predicates = [HasStdExtA] in {
 defm LR_W       : LR_r_aq_rl<0b010, "lr.w">, Sched<[WriteAtomicLDW, ReadAtomicLDW]>;
 defm SC_W       : AMO_rr_aq_rl<0b00011, 0b010, "sc.w">,
                   Sched<[WriteAtomicSTW, ReadAtomicSTW, ReadAtomicSTW]>;
+
+def LW_AQ       : LDAQ_r<0b010, "lw.aq">, Sched<[WriteAtomicLDW, ReadAtomicLDW]>;
+def SW_RL       : STRL_rr<0b010, "sw.rl">, Sched<[WriteAtomicSTW, ReadAtomicSTW, ReadAtomicSTW]>;
+
 defm AMOSWAP_W  : AMO_rr_aq_rl<0b00001, 0b010, "amoswap.w">,
                   Sched<[WriteAtomicW, ReadAtomicWA, ReadAtomicWD]>;
 defm AMOADD_W   : AMO_rr_aq_rl<0b00000, 0b010, "amoadd.w">,
@@ -160,6 +180,9 @@ def : Pat<(atomic_load_sub_32_acq_rel GPR:$addr, GPR:$incr),
           (AMOADD_W_AQ_RL GPR:$addr, (SUB X0, GPR:$incr))>;
 def : Pat<(atomic_load_sub_32_seq_cst GPR:$addr, GPR:$incr),
           (AMOADD_W_AQ_RL GPR:$addr, (SUB X0, GPR:$incr))>;
+
+// TODO(bsarden,turtwig): WTF is `acquiring_load` in tablegen land??
+// def : Pat<(acquiring_load<atomic_load_32> GPR:$addr), (LW_AQ GPR:$addr)>;
 
 /// Pseudo AMOs
 
