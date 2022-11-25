@@ -3866,7 +3866,7 @@ def : Pat<(post_store (v8bf16 FPR128:$Rt), GPR64sp:$addr, simm9:$off),
 
 def LDARW  : LoadAcquire   <0b10, 1, 1, 0, 1, GPR32, "ldar">;
 def LDARX  : LoadAcquire   <0b11, 1, 1, 0, 1, GPR64, "ldar">;
-// def LDARB  : LoadAcquire   <0b00, 1, 1, 0, 1, GPR32, "ldarb">;
+def LDARB  : LoadAcquire   <0b00, 1, 1, 0, 1, GPR32, "ldarb">;
 def LDARH  : LoadAcquire   <0b01, 1, 1, 0, 1, GPR32, "ldarh">;
 
 def LDAXRW : LoadExclusive <0b10, 0, 1, 0, 1, GPR32, "ldaxr">;

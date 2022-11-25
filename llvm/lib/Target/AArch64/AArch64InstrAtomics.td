@@ -60,8 +60,6 @@ let Predicates = [HasRCPC] in {
   // 64-bit loads
   def : Pat<(acquiring_load<atomic_load_64> GPR64sp:$ptr), (LDAPRX GPR64sp:$ptr)>;
 }
-def : Pat<(LDARB GPR64sp:$ptr), (DMB ; LDRB sadfsadf ; DMB.LD)>;
-// def : Pat<(STLR Gsadf), (DMB ; STRB asdfasdf)>;
 
 // 8-bit loads
 def : Pat<(seq_cst_load<atomic_load_az_8>  GPR64sp:$ptr), (LDARB GPR64sp:$ptr)>;
